@@ -9,9 +9,10 @@ class Minerador:
 
     def receber_bloco(self, bloco: Bloco):
         bloco.minerar_bloco()
-
-        if bloco.pow():
-            if  self.blockchain.adicionar_bloco(bloco) == 1:
-                self.pontos += 1
-                print(f"✅ {self.nome} minerou e adicionou o bloco {bloco.indice}! Pontos: {self.pontos}")
-
+    
+    def validar_bloco(self, bloco: Bloco):
+        hashb_bloco = bloco.hash
+        retorno_pow = bloco.pow()
+        hashb_bloco_recalculo = bloco.hash
+        
+        return retorno_pow and (hashb_bloco == hashb_bloco_recalculo)

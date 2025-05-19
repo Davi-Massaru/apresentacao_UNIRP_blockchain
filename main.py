@@ -1,4 +1,5 @@
 import threading
+from typing import List
 from blockchain import Blockchain
 from bloco import Bloco
 from minerador import Minerador
@@ -27,25 +28,37 @@ def competir_por_bloco(dados):
     vencedor_lock = threading.Lock()
     threads = []
 
-    def tentar_minera(minerador):
+    def tentar_minera(minerador: Minerador, mineradores: List[Minerador]):
         nonlocal vencedor
         time.sleep(random.uniform(0, 0.1))
         bloco_copia = Bloco(bloco_base.indice, bloco_base.dados, bloco_base.hash_anterior)
         bloco_copia.nonce = 0
         
         minerador.receber_bloco(bloco_copia)
-
+        
+        aprovacao = 0
+        quantidade_mineradores = len(mineradores)
+        for m in mineradores:
+            if m.validar_bloco(bloco_copia):
+                    aprovacao += 1
+                    
+        if aprovacao >= (quantidade_mineradores /2):     
+            blockchain.adicionar_bloco(bloco_copia)
+        
         with vencedor_lock:
             if vencedor is None and blockchain.cadeia[-1].indice == bloco_copia.indice:
                 vencedor = minerador
+                vencedor.pontos += 1
+                print(f"Venceu: {minerador.nome} HASH: {bloco_copia.hash} NONCE: {bloco_copia.nonce} " )
+                print(f"✅ {vencedor.nome} minerou e adicionou o bloco {bloco_copia.indice}! Pontos: {vencedor.pontos}")
 
     for m in mineradores:
-        t = threading.Thread(target=tentar_minera, args=(m,))
+        t = threading.Thread(target=tentar_minera, args=(m,mineradores))
         threads.append(t)
         t.start()
 
     for t in threads:
-        t.join()
+        t.join()     
 
 if __name__ == "__main__":
     print("🚀 Blockchain iniciada. Digite informações para minerar novos blocos.")
