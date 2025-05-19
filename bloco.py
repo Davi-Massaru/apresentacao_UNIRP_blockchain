@@ -10,7 +10,7 @@ class Bloco:
         self.nonce = 0
         self.hash = self.calcular_hash()
 
-    def calcular_hash(self):
+    def calcular_hash(self) -> str:
         conteudo = (
             str(self.indice) +
             str(self.timestamp) +
@@ -20,7 +20,7 @@ class Bloco:
         )
         return hashlib.sha256(conteudo.encode()).hexdigest()
     
-    def pow(self):
+    def pow(self) -> bool:
         self.hash = self.calcular_hash()
         inicia_com_000 = (self.hash.startswith("000"))
         multiplo_de_2 = (self.nonce % 2 == 0)
